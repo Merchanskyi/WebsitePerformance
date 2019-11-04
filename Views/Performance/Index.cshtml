@@ -1,0 +1,57 @@
+﻿@using website_performance.Models.PerformanceViewModels
+
+@model Tuple<List<PerformanceViewModel>, SearchViewModel>
+
+@{
+    ViewData["Title"] = "Website Performance";
+}
+
+<div class="text-center">
+    <h1 class="display-4">To check the response speed of the website, enter the URL in the field below.</h1>
+    @Html.Partial("_StatusMessage", Model.Item2.StatusMessage)
+    <form method="post">
+        <div class="input-group">
+            <input asp-for="@Url" type="url" value="" class="form-control" placeholder="URL Location">
+            <div class="input-group-append">
+                <button class="btn btn-success" type="submit">Check</button>
+            </div>
+        </div>
+    </form>
+
+
+    <div>
+        @{
+            int counter = 1;
+            @foreach (var item in Model.Item1)
+            {
+                <div class="row justify-content-md-center">
+                    <div class="col col-lg-2 bg-light">
+                        <h5>
+                            @counter
+                            @{counter++;}
+                        </h5>
+                    </div>
+
+                    <div class="col col-lg-2 bg-light">
+                        <a href="@item.WebSite" target="_blank">@item.WebSite</a>
+                    </div>
+
+                    <div class="col col-lg-2 bg-light">
+                        <h6>
+                            @item.Responce
+                        </h6>
+                    </div>
+                </div>
+            }
+
+            @if (Model.Item1.Count >= 1)
+            {
+                <form method="post" asp-action="Clear">
+                    <div class="col col-lg-2">
+                        <button class="btn btn-danger" type="submit">Clear story</button>
+                    </div>
+                </form>
+            }
+        }
+    </div>
+</div>

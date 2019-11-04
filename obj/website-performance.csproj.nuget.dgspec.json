@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Git\\ForStudy\\website-performance\\website-performance.csproj": {}
+    "D:\\GitProjects\\ForStudy\\website-performance\\website-performance.csproj": {}
   },
   "projects": {
-    "E:\\Git\\ForStudy\\website-performance\\website-performance.csproj": {
+    "D:\\GitProjects\\ForStudy\\website-performance\\website-performance.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Git\\ForStudy\\website-performance\\website-performance.csproj",
+        "projectUniqueName": "D:\\GitProjects\\ForStudy\\website-performance\\website-performance.csproj",
         "projectName": "website-performance",
-        "projectPath": "E:\\Git\\ForStudy\\website-performance\\website-performance.csproj",
+        "projectPath": "D:\\GitProjects\\ForStudy\\website-performance\\website-performance.csproj",
         "packagesPath": "C:\\Users\\Ruslan\\.nuget\\packages\\",
-        "outputPath": "E:\\Git\\ForStudy\\website-performance\\obj\\",
+        "outputPath": "D:\\GitProjects\\ForStudy\\website-performance\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -40,6 +40,26 @@
       },
       "frameworks": {
         "netcoreapp3.0": {
+          "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
