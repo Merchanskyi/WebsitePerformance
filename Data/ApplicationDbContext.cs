@@ -10,6 +10,7 @@ namespace website_performance.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<PerformanceDbModel> Performances { get; set; }
+        public DbSet<WebsiteDbModel> Websites { get; set; }
+        public DbSet<SitemapDbModel> Sitemaps { get; set; }
     }
 }

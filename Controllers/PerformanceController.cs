@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using website_performance.Models;
 using website_performance.Models.PerformanceViewModels;
+using website_performance.Services;
 
 namespace website_performance.Controllers
 {
@@ -18,18 +19,33 @@ namespace website_performance.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var dbModel = DbContext.Performances
-                .OrderByDescending(x => x.Responce)
-                .Select(x => new PerformanceViewModel
+            var webSiteDbModel = DbContext.Websites
+                .Select(x => new WebsiteViewModel
                 {
-                    WebSite = x.Website,
-                    Responce = x.Responce
+                    Id = x.Id,
+                    WebSite = x.Website
                 })
                 .ToList();
 
             var viewModel = new SearchViewModel { StatusMessage = StatusMessage };
 
-            return View("Index", new Tuple<List<PerformanceViewModel>, SearchViewModel>(dbModel, viewModel));
+            return View("Index", new Tuple<List<WebsiteViewModel>, SearchViewModel>(webSiteDbModel, viewModel));
+        }
+
+        [HttpGet("{websiteId}")]
+        public IActionResult SiteMap([FromRoute] Guid websiteId)
+        {
+            var siteMapDbModel = DbContext.Sitemaps
+                .Where(x => x.WebsiteId == websiteId)
+                .OrderByDescending(x => x.Responce)
+                .Select(x => new SitemapViewModel
+                {
+                    Sitemap = x.Sitemap,
+                    Responce = x.Responce
+                })
+                .ToList();
+
+            return View("Sitemap", siteMapDbModel);
         }
 
         [HttpPost]
@@ -41,36 +57,33 @@ namespace website_performance.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            HttpWebResponse response = null;
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(viewModel.Url);
-            request.Method = "HEAD";
-
-            Stopwatch timer = new Stopwatch();
-            timer.Start();
-
+            var request = WebRequest.Create(viewModel.Url);
             try
             {
-                response = (HttpWebResponse)request.GetResponse();
+                await request.GetResponseAsync();
             }
             catch
             {
                 StatusMessage = "Error! Request failed send.";
                 return RedirectToAction(nameof(Index));
             }
-            finally
-            {
-                if (response != null)
-                    response.Close();
-            }
 
-            timer.Stop();
+            var service = new SitemapBuilderService();
+            var data = await service.LoadAsync(viewModel.Url);
 
-            await DbContext.Performances.AddAsync(new PerformanceDbModel
+            var perfDb = await DbContext.Websites.AddAsync(new WebsiteDbModel
             {
                 Id = Guid.NewGuid(),
-                Website = viewModel.Url,
-                Responce = timer.Elapsed
+                Website = viewModel.Url
             });
+
+            await DbContext.Sitemaps.AddRangeAsync(data.Select(x => new SitemapDbModel
+            {
+                Id = Guid.NewGuid(),
+                WebsiteId = perfDb.Entity.Id,
+                Sitemap = x.Url,
+                Responce = x.TimeExecution
+            }));
 
             await DbContext.SaveChangesAsync();
 
@@ -82,8 +95,11 @@ namespace website_performance.Controllers
         [HttpPost]
         public async Task<IActionResult> Clear()
         {
-            foreach (var entity in DbContext.Performances)
-                DbContext.Performances.Remove(entity);
+            foreach (var wsEntity in DbContext.Websites)
+                DbContext.Websites.Remove(wsEntity);
+
+            foreach (var smEntity in DbContext.Sitemaps)
+                DbContext.Sitemaps.Remove(smEntity);
 
             await DbContext.SaveChangesAsync();
 

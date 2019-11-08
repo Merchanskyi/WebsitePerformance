@@ -2,9 +2,10 @@
 
 namespace website_performance.Models.PerformanceViewModels
 {
-    public class PerformanceViewModel
+    public class WebsiteViewModel
     {
+        public Guid Id { get; set; }
+        
         public string WebSite { get; set; }
-        public TimeSpan Responce { get; set; }
     }
 }
