@@ -21,6 +21,8 @@ namespace website_performance.Services
         private Uri _baseUrl;
         private ConcurrentDictionary<string, UrlContext> _contexts;
 
+        public int Pages { get; set; } = 1000;
+
         public async Task<List<UrlContext>> LoadAsync(string url)
         {
             _baseUrl = new Uri(url);
@@ -33,6 +35,11 @@ namespace website_performance.Services
 
         private async Task InternalLoadAsync(string url)
         {
+            if (_contexts.Count >= Pages)
+            {
+                return;
+            }
+
             var context = new UrlContext
             {
                 Url = url
@@ -65,16 +72,24 @@ namespace website_performance.Services
             {
                 var document = new HtmlDocument();
                 document.Load(response.GetResponseStream());
+                response.Dispose();
 
                 var tasks = document.DocumentNode
-                    .SelectNodes($"//a/@href")
-                    .Select(node => node.Attributes["href"]?.Value)
+                    ?.SelectNodes($"//a/@href")
+                    ?.Select(node => node.Attributes["href"]?.Value)
                     .Select(url => NormilizeUrl(url))
                     .Where(url => url != null)
-                    .Select(url => InternalLoadAsync(url));
+                    .Select(url => InternalLoadAsync(url))
+                    .ToList();
 
-                await Task.WhenAll(tasks);
+                document = null;
+
+                if (tasks != null)
+                {
+                    await Task.WhenAll(tasks);
+                }
             }
+
         }
 
         private string NormilizeUrl(string url)
